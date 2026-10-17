@@ -128,7 +128,7 @@ if question:
     except Exception as e:
         st.error(f"The AI call failed: {e}")
 
-    if not news.empty:
-        st.subheader("Sources")
-        for i, r in enumerate(news.itertuples(), 1):
-            st.markdown(f"[{i}] [{r.title}]({r.link}) · {r.source} · {r.published}")
+        if not news.empty:
+        with st.expander(f"Headlines considered ({len(news)})", expanded=bool(tickers)):
+            for i, r in enumerate(news.itertuples(), 1):
+                st.markdown(f"[{i}] [{r.title}]({r.link}) · {r.source} · {r.published}")
