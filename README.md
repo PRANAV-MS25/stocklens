@@ -60,7 +60,7 @@ pip
 2. Clone Repository
 git clone [https://github.com/PRANAV-MS25/stocklens.git](https://github.com/PRANAV-MS25/stocklens.git)
 cd stocklens
-
+```
 3. Create & Activate Virtual Environment
 python -m venv .venv
 # On Windows:
@@ -69,7 +69,9 @@ python -m venv .venv
 # source .venv/bin/activate
 
 ```
+4. Install Dependencies
 pip install -r requirements.txt
+```
 
 5. Configure Environment VariablesCreate a .env file in the project root folder and add your free Google Gemini API key:Code snippetGEMINI_API_KEY=your-gemini-api-key-here
 6. Run Data Ingestion PipelineFetch historical price bars and real-time news headlines into SQLite:Bashpython ingest.py
