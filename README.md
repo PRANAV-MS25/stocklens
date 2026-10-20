@@ -16,6 +16,7 @@ A quantitative research assistant and financial analytics engine for 20 large In
 
 ## How it works
 
+```
 yfinance (prices) ──► ingest.py ───────┐
 ├──► SQLite (stocklens.db)
 Google News RSS ───► ingest_news.py ───┘          │
