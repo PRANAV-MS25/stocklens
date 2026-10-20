@@ -71,13 +71,14 @@ python -m venv .venv
 ```
 4. Install Dependencies
 pip install -r requirements.txt
-```
-
 5. Configure Environment VariablesCreate a .env file in the project root folder and add your free Google Gemini API key:Code snippetGEMINI_API_KEY=your-gemini-api-key-here
 6. Run Data Ingestion PipelineFetch historical price bars and real-time news headlines into SQLite:Bashpython ingest.py
 python ingest_news.py
 7. Launch the Streamlit AppBashpython -m streamlit run app.py
-Open: http://localhost:8501🔐 Default Environment & CredentialsComponentConfigurationAccess / SourceDatabaseLocal SQLite (stocklens.db)Auto-generated via ingestion scriptsAI EngineGoogle Gemini API (google-genai)Free tier API key via Google AI StudioMarket DataYahoo Finance (yfinance)Public real-time & historical feeds🔄 System Flowyfinance (Market Prices) ──► ingest.py ─────────┐
+Open: http://localhost:8501🔐 Default Environment & CredentialsComponentConfigurationAccess / SourceDatabaseLocal SQLite (stocklens.db)Auto-generated via ingestion scriptsAI EngineGoogle Gemini API
+(google-genai)Free tier API key via Google AI StudioMarket DataYahoo Finance
+
+(yfinance)Public real-time & historical feeds🔄 System Flowyfinance (Market Prices) ──► ingest.py ─────────┐
                                                  ├──► SQLite Database (stocklens.db)
 Google News RSS ─────────► ingest_news.py ───────┘            │
                                                               ▼
