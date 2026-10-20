@@ -35,6 +35,7 @@ stocklens/
 
 ```
 ---
+```
 
 ## 🔄 System Flow
 
@@ -48,8 +49,7 @@ Streamlit Multi-Page Dashboard
 ▼                                        ▼                                        ▼
 Dashboard & Technicals               Investment Lens & Signals              AI Research Assistant (Ask)
 (20/50 SMA, Volatility, Returns)        (Dynamic RSI, Tax & ROI Calculator)       (Grounded Gemini Answers + Citations)
-
-
+```
 ---
 
 ## ⚙️ Setup & Installation
