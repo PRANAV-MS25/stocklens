@@ -51,20 +51,22 @@ Dashboard & Technicals               Investment Lens & Signals              AI R
 
 ```
 ---
-
+```
 ## ⚙️ Setup & Installation
 
 ### 1. Prerequisites
 - Python 3.10+
 - pip
-
+```
 ### 2. Clone Repository
 ``
 `bash
 git clone [https://github.com/PRANAV-MS25/stocklens.git](https://github.com/PRANAV-MS25/stocklens.git)
 cd stocklens
+```
 3. Create & Activate Virtual Environment
 Bash
+```
 python -m venv .venv
 # On Windows:
 .venv\Scripts\activate
