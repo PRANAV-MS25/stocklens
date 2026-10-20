@@ -59,7 +59,7 @@ Dashboard & Technicals               Investment Lens & Signals              AI R
 - pip
 ```
 ### 2. Clone Repository
-``
+```
 `bash
 git clone [https://github.com/PRANAV-MS25/stocklens.git](https://github.com/PRANAV-MS25/stocklens.git)
 cd stocklens
@@ -72,21 +72,23 @@ python -m venv .venv
 .venv\Scripts\activate
 # On Linux/macOS:
 # source .venv/bin/activate
+```
 4. Install Dependencies
 Bash
 pip install -r requirements.txt
+```
 5. Configure API Key
 Create a .env file in the project root directory and add your free Google Gemini API key:
-
 Code snippet
 GEMINI_API_KEY=your-gemini-api-key-here
+```
 6. Run Ingestion Pipeline
 Fetch historical price bars and real-time news headlines into SQLite:
-
 Bash
 python ingest.py
 python ingest_news.py
-7. Launch Application
+```
+8. Launch Application
 Bash
 python -m streamlit run app.py
 Open: http://localhost:8501
