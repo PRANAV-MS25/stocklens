@@ -14,7 +14,7 @@ A quantitative research assistant and financial analytics platform for Indian St
 - **⚖️ Peer Benchmark Matrix:** Base-100 normalized performance trajectory, Sharpe Ratio risk-adjusted returns, and cross-asset correlation heatmaps.
 - **🤖 Grounded AI Copilot:** Natural language Q&A backed by the Google Gemini API, synthesizing pandas price facts and SQLite news records with numbered source citations.
 
----
+``
 
 ## 📁 Project Structure
 
@@ -33,7 +33,7 @@ stocklens/
 ├── requirements.txt                # Project dependencies
 └── stocklens.db                    # SQLite database (Prices & FTS5 News index)
 
-
+``
 ---
 
 ## 🔄 System Flow
