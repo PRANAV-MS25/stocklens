@@ -1,92 +1,62 @@
-# 🔍 StockLens
+# 📈 StockLens — Quantitative Market Assistant & AI Research Engine
 
-A quantitative research assistant and financial analytics engine for 20 large Indian stocks (NSE). It collects daily price action and news headlines, computes trend & volatility metrics, evaluates trade entry signals with profit/tax calculators, and answers questions using grounded LLM synthesis with citations.
+StockLens is a full-stack financial analytics and quantitative research platform built for Indian Stock Exchange (NSE) equities. It bridges the gap between raw market data and actionable investment decisions by combining real-time price ingestion, automated technical indicators, multi-stock risk benchmarking, dynamic profit/tax calculators, and a grounded LLM research assistant.
 
-> ⚠️ **Disclaimer:** Research tool only. Nothing here is investment advice.
+> ⚠️ **Disclaimer:** Research tool only. Nothing here constitutes professional financial or investment advice.
 
-![Ask page](docs/ask.png)
+---
 
-## What it does
+## 📁 Project Structure
 
-- **Dashboard:** Interactive price charts with 20 and 50-day moving averages, return performance, annualized volatility, and volume indicators for 20 NSE stocks.
-- **Investment Lens & Signals:** Automated Buy/Hold/Caution signal checks using RSI momentum, moving average crossovers, and valuation P/E metrics. Includes a real-time capital gains profit & tax calculator and a 5-year annualized wealth projection model.
-- **Peer Benchmark:** Head-to-head multi-stock comparisons featuring base-100 normalized return growth, Sharpe ratio risk-adjusted evaluations, and cross-stock correlation heatmaps.
-- **News:** Aggregates recent headlines per company into a searchable SQLite full-text index (FTS5) displayed alongside price movements.
-- **Ask (AI Assistant):** Answers plain language questions by matching stock tickers and relevant headlines, combining computed pandas facts, and asking Gemini to synthesize grounded answers with numbered source citations.
+stocklens/
+├── pages/                          # Streamlit multi-page interface
+│   ├── 02_Investment_Lens.py       # Buy/Hold signal generator & profit/tax calculator
+│   ├── 3_News.py                   # Google News RSS aggregator & sentiment viewer
+│   ├── 4_Ask.py                    # Grounded AI research assistant (Gemini API)
+│   └── 5_Peer_Benchmark.py         # Multi-stock risk/return matrix & correlation heatmap
+├── tests/                          # Automated test suite
+│   └── test_signals.py             # Unit tests for RSI, momentum, and tax calculations
+├── docs/                           # Documentation assets & screenshots
+│   └── ask.png                     # AI assistant UI preview
+├── .env                            # Environment variables (API keys)
+├── app.py                          # Main Streamlit dashboard application
+├── core.py                         # Quantitative analysis core (returns, volatility, helpers)
+├── ingest.py                       # yfinance daily price ingestion pipeline
+├── ingest_news.py                  # Google News RSS headline scraper
+├── notify_test.py                  # Automated alert notification script
+├── requirements.txt                # Project dependencies
+└── stocklens.db                    # SQLite database (Prices, FTS5 News index)
 
-## How it works
+---
 
-```
-yfinance (prices) ──► ingest.py ───────┐
-├──► SQLite (stocklens.db)
-Google News RSS ───► ingest_news.py ───┘          │
-▼
-Streamlit App (Dashboard, Signals, Benchmark, News)
-│
-question ──► ticker match + headline search
-│
-price facts + headlines ──► Gemini API ──► cited answer
+## 🗄️ Database Schema & Architecture
 
-```
-### Design Principles
+### `prices` (SQLite)
+| Field | Type | Description |
+|-------|------|---|
+| ticker | VARCHAR | NSE Stock Symbol (e.g., RELIANCE.NS) |
+| date | DATETIME | Trading session date |
+| Open / High / Low / Close | DECIMAL | Daily price action |
+| Volume | BIGINT | Traded volume |
 
-- **Deterministic Math:** Returns, annualized volatility, RSI, SMA, and Sharpe ratios are computed strictly using `pandas` and `numpy` rather than relying on LLM estimation.
-- **Grounded AI Answers:** Prompts instruct Gemini to answer strictly from provided SQLite context and computed pandas facts, requiring explicit citations and prohibiting financial advice.
-- **Untrusted Headline Handling:** News headlines are treated as untrusted data inputs to guard against prompt injection vulnerabilities.
-- **Transparent Attribution:** Every retrieved news item retains publisher dates, titles, and direct external links.
+### `news` (SQLite FTS5 Full-Text Index)
+| Field | Type | Description |
+|-------|------|---|
+| ticker | VARCHAR | Associated stock symbol |
+| headline | TEXT | News article title |
+| date | DATETIME | Publication timestamp |
+| url | TEXT | Direct link to publisher source |
 
-## Run it locally
+---
 
-### 1. Set Up Virtual Environment & Dependencies
+## ⚙️ Setup & Installation Instructions
 
+### 1. Prerequisites
 ```
 bash
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On Linux/macOS:
-# source .venv/bin/activate
-
-pip install -r requirements.txt
-2. Ingest Historical Data
-Bash
-python ingest.py
-python ingest_news.py
-3. Set Up Environment Variables
-Create a .env file in the project root directory and add your Google Gemini API key:
+Python 3.10+
+pip
 ```
-Code snippet
-GEMINI_API_KEY=your-gemini-api-key-here
-4. Launch the Streamlit App
-Bash
-python -m streamlit run app.py
-Limitations
-Data coverage is scoped to 20 key NSE equities and ~2 years of historical daily price bars.
-
-Price feeds rely on yfinance, which may experience minor delays or discrepancies.
-
-The AI context window receives headline titles rather than full article text, so macro explanations may be limited to summary data.
-
-Data ingestion pipeline currently executes via manual script invocation (ingest.py and ingest_news.py).
-
-Roadmap
-[x] Investment entry signals & real-time capital gains tax calculator
-
-[x] Multi-stock peer benchmark & Sharpe ratio risk matrix
-
-[ ] Automated daily data refresh via GitHub Actions / Cron
-
-[ ] Automated unit test suite (pytest) for volatility, signal calculations, and ticker resolution
-
-[ ] Backtesting framework evaluating momentum signals against buy-and-hold benchmarks
-
-[ ] Daily summary email/Telegram alerts for ticker price breakouts
-
-Tech Stack
-Core & Analytics: Python, Pandas, NumPy, SQLite (FTS5)
-
-Frontend & Visualizations: Streamlit, Plotly Express, Plotly Graph Objects
-
-Data Ingestion: yfinance, Google News RSS
-
-AI & NLP: Google Gemini API (google-genai / google-generativeai)
+git clone [https://github.com/PRANAV-MS25/stocklens.git](https://github.com/PRANAV-MS25/stocklens.git)
+cd stocklens
+```
