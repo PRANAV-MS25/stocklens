@@ -27,7 +27,7 @@ question ──► ticker match + headline search
 │
 price facts + headlines ──► Gemini API ──► cited answer
 
-
+```
 ### Design Principles
 
 - **Deterministic Math:** Returns, annualized volatility, RSI, SMA, and Sharpe ratios are computed strictly using `pandas` and `numpy` rather than relying on LLM estimation.
@@ -39,7 +39,8 @@ price facts + headlines ──► Gemini API ──► cited answer
 
 ### 1. Set Up Virtual Environment & Dependencies
 
-```bash
+```
+bash
 python -m venv .venv
 # On Windows:
 .venv\Scripts\activate
@@ -53,7 +54,7 @@ python ingest.py
 python ingest_news.py
 3. Set Up Environment Variables
 Create a .env file in the project root directory and add your Google Gemini API key:
-
+```
 Code snippet
 GEMINI_API_KEY=your-gemini-api-key-here
 4. Launch the Streamlit App

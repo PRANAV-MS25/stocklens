@@ -6,22 +6,30 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="StockLens - Investment & Profit Workbench", layout="wide")
 
-st.title("🎯 Investment Signals & Real-Time Profit Calculator")
-st.markdown("Automated signal evaluation, live trade ROI calculator, and long-term holding projections.")
+st.title("🎯 Dynamic Investment Lens & Real-Time Profit Calculator")
+st.markdown("Select an NSE stock and time duration to dynamically analyze real-time buy signals, ROI, and long-term projections.")
 
-# Sidebar inputs
-ticker_input = st.sidebar.text_input("Enter NSE Stock Ticker (e.g., RELIANCE.NS, TCS.NS, INFYS.NS)", value="RELIANCE.NS")
-period = st.sidebar.selectbox("Historical Data Range", ["6mo", "1y", "2y", "5y"], index=1)
+# List of all 20 tracked NSE Stocks
+NSE_STOCKS = [
+    "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS",
+    "BHARTIARTL.NS", "ITC.NS", "SBIN.NS", "LTIM.NS", "LT.NS",
+    "HINDUNILVR.NS", "AXISBANK.NS", "KOTAKBANK.NS", "TATAMOTORS.NS", "MARUTI.NS",
+    "SUNPHARMA.NS", "NTPC.NS", "ULTRACEMCO.NS", "TITAN.NS", "BAJFINANCE.NS"
+]
+
+# Sidebar Controls (Default duration set to 1y)
+ticker_input = st.sidebar.selectbox("Select NSE Stock", options=NSE_STOCKS, index=0)
+period = st.sidebar.selectbox("Historical Data Range (Duration)", ["3mo", "6mo", "1y", "2y", "5y"], index=2)
 
 @st.cache_data(ttl=300)
-def fetch_stock_details(symbol):
+def fetch_stock_details(symbol, timeframe):
     ticker = yf.Ticker(symbol)
-    df = ticker.history(period=period)
+    df = ticker.history(period=timeframe)
     info = ticker.info
     return df, info
 
 try:
-    df, info = fetch_stock_details(ticker_input)
+    df, info = fetch_stock_details(ticker_input, period)
     if df.empty:
         st.error("Could not retrieve stock data. Please verify the ticker symbol.")
         st.stop()
@@ -35,16 +43,21 @@ try:
     col1.metric("Current Live Price", f"₹{current_price:,.2f}", f"{day_change:+.2f}%")
     col2.metric("52-Week High", f"₹{info.get('fiftyTwoWeekHigh', 0):,.2f}")
     col3.metric("52-Week Low", f"₹{info.get('fiftyTwoWeekLow', 0):,.2f}")
-    col4.metric("Trailing P/E Ratio", f"{info.get('trailingPE', 'N/A')}")
+    
+    pe_val = info.get('trailingPE', None)
+    col4.metric("Trailing P/E Ratio", f"{pe_val:.2f}" if pe_val else "N/A")
 
     st.markdown("---")
 
-    # SECTION 1: AUTO BUY / SELL / HOLD SIGNAL
-    st.subheader("📊 Stock Lens Signal & Long-Run Outlook")
+    # SECTION 1: TIME-FRAME DYNAMIC SIGNAL & OUTLOOK
+    st.subheader(f"📊 Signal & Outlook for Selected Horizon ({period})")
 
-    # Calculate Moving Averages & RSI
-    df['SMA_20'] = df['Close'].rolling(20).mean()
-    df['SMA_50'] = df['Close'].rolling(50).mean()
+    # Dynamic Moving Averages (adjusted window size if data points are fewer than period)
+    ma_short_window = min(20, max(len(df) // 4, 3))
+    ma_long_window = min(50, max(len(df) // 2, 5))
+
+    df['SMA_Short'] = df['Close'].rolling(ma_short_window).mean()
+    df['SMA_Long'] = df['Close'].rolling(ma_long_window).mean()
 
     delta = df['Close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(14).mean()
@@ -52,44 +65,47 @@ try:
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
-    latest_rsi = df['RSI'].iloc[-1]
-    sma_20 = df['SMA_20'].iloc[-1]
-    sma_50 = df['SMA_50'].iloc[-1]
+    latest_rsi = df['RSI'].iloc[-1] if not pd.isna(df['RSI'].iloc[-1]) else 50.0
+    sma_short = df['SMA_Short'].iloc[-1]
+    sma_long = df['SMA_Long'].iloc[-1]
+    period_return = ((df['Close'].iloc[-1] - df['Close'].iloc[0]) / df['Close'].iloc[0]) * 100
 
-    # Signal Logic
+    # Dynamic Signal Logic based on Selected Duration Performance
     signal_score = 0
     reasons = []
 
-    if current_price > sma_20 and sma_20 > sma_50:
+    if current_price > sma_short and sma_short > sma_long:
         signal_score += 2
-        reasons.append("Bullish Trend: Price is above both 20-day and 50-day Moving Averages.")
-    elif current_price < sma_20:
+        reasons.append(f"Bullish Trend over {period}: Price is trading above short and long moving averages.")
+    elif current_price < sma_short:
         signal_score -= 1
-        reasons.append("Short-term Pullback: Price is trading below 20-day Moving Average.")
+        reasons.append(f"Short-term pullback: Price is below the moving average for the {period} window.")
 
     if latest_rsi < 35:
         signal_score += 2
-        reasons.append(f"Oversold Condition: RSI is at {latest_rsi:.1f} (Potential Entry Point).")
+        reasons.append(f"Oversold Momentum: RSI stands at {latest_rsi:.1f} (Attractive entry point).")
     elif latest_rsi > 70:
         signal_score -= 2
-        reasons.append(f"Overbought Condition: RSI is at {latest_rsi:.1f} (Risk of Correction).")
+        reasons.append(f"Overbought Momentum: RSI stands at {latest_rsi:.1f} (Risk of near-term correction).")
     else:
-        reasons.append(f"Neutral Momentum: RSI is balanced at {latest_rsi:.1f}.")
+        reasons.append(f"Balanced Momentum: RSI is neutral at {latest_rsi:.1f}.")
 
-    pe = info.get('trailingPE', None)
-    if pe and pe < 25:
+    if period_return > 15:
         signal_score += 1
-        reasons.append(f"Reasonable Valuation: Trailing P/E is {pe:.1f}.")
+        reasons.append(f"Strong historical growth of +{period_return:.1f}% over the chosen {period} horizon.")
+    elif period_return < -5:
+        signal_score += 1  # Dip buying opportunity
+        reasons.append(f"The stock is down {period_return:.1f}% over {period}, presenting a potential discount/dip buy.")
 
-    # Output Recommendation
+    # Render dynamic color-coded recommendation boxes
     if signal_score >= 3:
-        st.success("🟢 **STRONG ACCUMULATE / BUY**")
+        st.success(f"🟢 **STRONG ACCUMULATE / BUY ({period.upper()} HORIZON)**")
     elif signal_score >= 1:
-        st.info("🟡 **HOLD / MODERATE ACCUMULATION**")
+        st.info(f"🟡 **HOLD / MODERATE ACCUMULATION ({period.upper()} HORIZON)**")
     else:
-        st.warning("🔴 **CAUTION / AWAIT DIP**")
+        st.warning(f"🔴 **CAUTION / AWAIT DIP ({period.upper()} HORIZON)**")
 
-    with st.expander("🔍 Signal Reasoning Breakdown"):
+    with st.expander(f"🔍 Dynamic Signal Breakdown ({period})"):
         for r in reasons:
             st.write(f"• {r}")
 
@@ -101,7 +117,8 @@ try:
 
     with calc_col1:
         shares = st.number_input("Number of Shares Bought", min_value=1, value=50)
-        buy_price = st.number_input("Purchase Price per Share (₹)", min_value=1.0, value=float(round(current_price * 0.95, 2)))
+        default_buy_price = float(round(current_price * 0.95, 2))
+        buy_price = st.number_input("Purchase Price per Share (₹)", min_value=1.0, value=default_buy_price)
         stcg_rate = st.slider("Short Term Capital Gain Tax Rate (%)", min_value=0, max_value=30, value=20)
 
     with calc_col2:
@@ -121,12 +138,10 @@ try:
 
     st.markdown("---")
 
-    # SECTION 3: LONG-RUN COMPOUNDING PROJECTION (5-YEAR HORIZON)
+    # SECTION 3: LONG-RUN COMPOUNDING PROJECTION
     st.subheader("🚀 Long-Run Wealth Projection (1 to 5 Years)")
     
-    # Calculate historical 1-year return for baseline
-    one_year_return = ((df['Close'].iloc[-1] - df['Close'].iloc[0]) / df['Close'].iloc[0])
-    annualized_return = max(float(one_year_return), 0.08)  # Default fallback 8%
+    annualized_return = max(float(period_return / 100), 0.08)
 
     years = np.arange(1, 6)
     projected_values = [current_val * ((1 + annualized_return) ** yr) for yr in years]
@@ -137,10 +152,10 @@ try:
         y=projected_values,
         text=[f"₹{v:,.0f}" for v in projected_values],
         textposition='auto',
-        marker_color='#00CC96'
+        marker_color='#00CC96' if annualized_return > 0 else '#EF553B'
     ))
     fig.update_layout(
-        title=f"Projected Long-Term Growth at {annualized_return*100:.1f}% Annualized Return",
+        title=f"Projected Wealth Growth based on selected {period} performance ({annualized_return*100:.1f}% Annualized)",
         xaxis_title="Timeline",
         yaxis_title="Portfolio Value (₹)",
         template="plotly_dark"
