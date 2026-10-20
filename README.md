@@ -35,7 +35,7 @@ stocklens/
 
 ```
 ---
-
+```
 ## 🔄 System Flow
 
 yfinance (Market Prices) ──► ingest.py ─────────┐
@@ -49,7 +49,7 @@ Streamlit Multi-Page Dashboard
 Dashboard & Technicals               Investment Lens & Signals              AI Research Assistant (Ask)
 (20/50 SMA, Volatility, Returns)        (Dynamic RSI, Tax & ROI Calculator)       (Grounded Gemini Answers + Citations)
 
-
+```
 ---
 
 ## ⚙️ Setup & Installation
@@ -59,7 +59,8 @@ Dashboard & Technicals               Investment Lens & Signals              AI R
 - pip
 
 ### 2. Clone Repository
-```bash
+``
+`bash
 git clone [https://github.com/PRANAV-MS25/stocklens.git](https://github.com/PRANAV-MS25/stocklens.git)
 cd stocklens
 3. Create & Activate Virtual Environment
